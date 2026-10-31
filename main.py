@@ -12,10 +12,8 @@ Two divide-and-conquer sorting algorithms:
   2. Quick Sort  - choose a pivot, partition the list around it,
                    then recursively sort the two parts.
 
-Based on Chapter 7 of Cormen, Leiserson, Rivest & Stein,
-"Introduction to Algorithms" (4th ed., 2022).
-
-TODO: quick sort is not implemented yet.
+Reference: Cormen, Leiserson, Rivest & Stein,
+"Introduction to Algorithms" (4th ed., 2022), Chapter 7.
 """
 
 
@@ -73,13 +71,61 @@ def merge(left, right):
 
 
 def quick_sort(arr):
-    """Sort a list of comparable elements in place, in increasing order.
+    """Sort a list of comparable elements IN PLACE in increasing order.
 
-    TODO: implement the divide-and-conquer quick sort (pick a pivot,
-    partition the list around it, then sort the two parts).
+    Divide-and-conquer strategy (Lomuto partition scheme):
+        1. Divide   - take the LAST element as the pivot and
+                      partition arr around it.
+        2. Conquer  - recursively quick_sort the two parts.
+        3. Combine  - nothing to combine; the parts already sit next
+                      to each other inside arr.
+
+    Parameter: arr - list of comparable elements
+    Return:    the same list object, sorted in increasing order
+
+    Complexity:
+        Time   - O(n log n) on average; O(n^2) in the worst case.
+                 With a last-element pivot, the worst case happens
+                 when the input is already sorted or reverse sorted:
+                 every partition peels off exactly one element.
+        Space  - O(log n) call stack on average, O(n) in the worst
+                 case (the recursion is that deep on sorted input).
+        Stable - no, because the partition swaps elements freely.
     """
-    # Placeholder - the algorithm is not implemented yet.
+    _quick_sort(arr, 0, len(arr) - 1)
     return arr
+
+
+def partition(arr, low, high):
+    """Lomuto partition: rearrange arr[low..high] around the pivot.
+
+    The pivot is arr[high]. After the call, arr[p] holds the pivot,
+    every element left of p is <= pivot, and every element right of
+    p is > pivot.
+
+    Parameter: arr   - the list
+               low   - left bound of the subarray (inclusive)
+               high  - right bound of the subarray (inclusive; the
+                       pivot's starting position)
+    Return:    p, the final index of the pivot
+    """
+    pivot = arr[high]
+    i = low - 1  # index of the last element known to be <= pivot
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    # Put the pivot between the two regions.
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+
+def _quick_sort(arr, low, high):
+    """Recursive driver for quick_sort; bounds are inclusive."""
+    if low < high:
+        p = partition(arr, low, high)
+        _quick_sort(arr, low, p - 1)
+        _quick_sort(arr, p + 1, high)
 
 
 def main():
